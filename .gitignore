@@ -1,0 +1,21 @@
+# Python virtual environments
+.venv/
+.venv312/
+venv/
+env/
+
+# PyInstaller
+dist/
+build/
+*.spec
+
+# GateDB Local Databases
+# We ignore these so we don't accidentally push user passwords or queries to public GitHub
+practiceflask/pending_req.db
+practiceflask/user_settings.db
+practiceflask/auth.db
+
+# Cache
+__pycache__/
+*.py[cod]
+*$py.class

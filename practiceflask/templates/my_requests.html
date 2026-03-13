@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Requests</title>
+    <style>
+        /* Original styles */
+        .result-container {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            position: relative;
+            margin-top: 5px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .copy-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .status-approved {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .status-rejected {
+            color: red;
+            font-weight: bold;
+        }
+
+        /* New styles for dark mode and modern table */
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --border: #333;
+            --card-bg: #2a2a2a;
+            --table-header-bg: #3a3a3a;
+            --table-row-hover-bg: #3a3a3a;
+            --success: #28a745;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: var(--text-color);
+        }
+
+        .container {
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        table thead tr {
+            background-color: var(--table-header-bg);
+            color: var(--text-color);
+            text-align: left;
+        }
+
+        table th,
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table tbody tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+
+        table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3em 0.6em;
+            font-size: 75%;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+            color: var(--text-color);
+        }
+
+        .badge-approved {
+            background-color: var(--success);
+        }
+
+        .badge-pending {
+            background-color: var(--warning);
+            color: var(--bg-color); /* Ensure text is visible on yellow */
+        }
+
+        .badge-rejected {
+            background-color: var(--danger);
+        }
+
+        .result-box {
+            background-color: #3a3a3a; /* Darker background for result */
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            white-space: pre-wrap;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            color: #c0c0c0; /* Lighter text for result */
+            font-size: 0.8rem;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    {% extends "base.html" %}
+    {% block content %}
+<div class="container" style="max-width: 1200px;">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="margin-bottom: 0.25rem;">My Data Requests</h1>
+        <p style="color: var(--text-muted); margin-top: 0;">Track and view the results of your submitted queries.</p>
+    </div>
+
+    <div class="card" style="padding: 1rem;">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>DB Type</th>
+                        <th>SQL Query</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Result</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in req_list %}
+                    <tr>
+                        <td style="font-weight: 600;">#{{ req[0] }}</td>
+                        <td><span class="badge" style="background-color: var(--border);">{{ req[8] }}</span></td>
+                        <td><code style="display: inline-block; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ req[2] }}</code></td>
+                        <td>
+                            <span class="badge badge-{{ req[3] }}">{{ req[3] }}</span>
+                        </td>
+                        <td style="font-size: 0.85rem; color: var(--text-muted);">{{ req[4] }}</td>
+                        <td>
+                            {% if req[3] == 'approved' and req[7] %}
+                            <div style="position: relative;">
+                                <div class="result-box" id="result-{{ req[0] }}">{{ req[7] }}</div>
+                                <button class="btn" style="position: absolute; top: 5px; right: 5px; padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="copyToClipboard('result-{{ req[0] }}', this)">Copy</button>
+                            </div>
+                            {% elif req[3] == 'rejected' and req[7] %}
+                            <div style="position: relative;">
+                                <div class="result-box" id="result-{{ req[0] }}" style="color: var(--danger);">{{ req[7] }}</div>
+                            </div>
+                            {% else %}
+                            <em style="color: var(--text-muted); font-size: 0.85rem;">Pending approval</em>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form action="{{ url_for('delete_my_request', request_id=req[0]) }}" method="POST" style="margin: 0;">
+                                <button type="submit" class="btn" style="background-color: var(--danger); padding: 0.3rem 0.6rem; font-size: 0.75rem;" title="Delete this request">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not req_list %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">You haven't submitted any requests yet.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyToClipboard(elementId, btn) {
+        const text = document.getElementById(elementId).innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            const originalText = btn.innerText;
+            btn.innerText = "Copied!";
+            btn.style.backgroundColor = "var(--success)";
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.backgroundColor = "";
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+</script>
+{% endblock %}
+</body>
+
+</html>

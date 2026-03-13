@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+
+<body>
+    {% extends "base.html" %}
+    {% block content %}
+<div class="container">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="margin-bottom: 0.25rem;">Dashboard</h1>
+        <p style="color: var(--text-muted); margin-top: 0;">Welcome back, <strong>{{current_user.username}}</strong>. You are logged as <code>{{current_user.role}}</code></p>
+    </div>
+
+    <div class="card">
+        <h3 style="margin-top: 0;">New Data Request</h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Select your target environment and database system, then enter a single SQL query.</p>
+        
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <label for="target_env">Target Environment</label>
+                <select name="target_env" id="target_env">
+                    <option value="Admin Central">Admin Database (Central)</option>
+                    <option value="My Personal">My Personal Database (Local)</option>
+                </select>
+            </div>
+            
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <label for="db_type">Database Type</label>
+                <select name="db_type" id="db_type">
+                    <option value="MySQL">MySQL</option>
+                    <option value="SQLite">SQLite</option>
+                    <option value="PostgreSQL">PostgreSQL</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="sql_query">SQL Query (Single statement only)</label>
+            <textarea name="sql_query" id="sql_query" rows="6" placeholder="SELECT * FROM table_name LIMIT 10"></textarea>
+        </div>
+        
+        <button onclick="submit_query()" class="btn">Submit for Approval</button>
+    </div>
+</div>
+
+<script>
+    function submit_query() {
+        const raw_query = document.getElementById("sql_query").value;
+        const db_type = document.getElementById("db_type").value;
+        const target_env = document.getElementById("target_env").value;
+        
+        const sql_query = raw_query.trim();
+        if (!sql_query) {
+            alert("Please enter a query.");
+            return;
+        }
+
+        // Validate single query
+        const statements = sql_query.split(';').map(q => q.trim()).filter(q => q.length > 0);
+        if (statements.length > 1) {
+            alert("Error: Please submit only ONE query at a time.");
+            return;
+        }
+
+        const full_db_type = target_env + " (" + db_type + ")";
+
+        fetch("/submit-request", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "sql_query=" + encodeURIComponent(statements[0] + ";") + "&db_type=" + encodeURIComponent(full_db_type)
+        })
+        .then(response => response.text())
+        .then(data => {
+            alert(data);
+            document.getElementById("sql_query").value = "";
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Error submitting request");
+        });
+    }
+</script>
+    {% endblock %}
+</body>
+
+</html>

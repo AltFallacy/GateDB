@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="text-align: center; padding-top: 4rem;">
+    <h1 style="font-size: 3.5rem; margin-bottom: 1rem; letter-spacing: -0.05em;">Modern Database <span style="color: var(--primary);">Governance.</span></h1>
+    <p style="font-size: 1.25rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 2rem;">
+        The secure gate for your SQL workflows. Control access, approve queries, and maintain audit logs with ease.
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="{{ url_for('signup') }}" class="btn" style="padding: 1rem 2rem; font-size: 1.1rem;">Start Building Now</a>
+        <a href="{{ url_for('about') }}" class="btn btn-secondary" style="padding: 1rem 2rem; font-size: 1.1rem;">How it Works</a>
+    </div>
+</div>
+{% endblock %}
