@@ -194,63 +194,94 @@
         <p style="color: var(--text-muted); margin-top: 0;">Track and view the results of your submitted queries.</p>
     </div>
 
-    <div class="card" style="padding: 1rem;">
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>DB Type</th>
-                        <th>SQL Query</th>
-                        <th>Status</th>
-                        <th>Created At</th>
-                        <th>Result</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for req in req_list %}
-                    <tr>
-                        <td style="font-weight: 600;">#{{ req[0] }}</td>
-                        <td><span class="badge" style="background-color: var(--border);">{{ req[8] }}</span></td>
-                        <td><code style="display: inline-block; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ req[2] }}</code></td>
-                        <td>
-                            <span class="badge badge-{{ req[3] }}">{{ req[3] }}</span>
-                        </td>
-                        <td style="font-size: 0.85rem; color: var(--text-muted);">{{ req[4] }}</td>
-                        <td>
-                            {% if req[3] == 'approved' and req[7] %}
-                            <div style="position: relative;">
-                                <div class="result-box" id="result-{{ req[0] }}">{{ req[7] }}</div>
-                                <button class="btn" style="position: absolute; top: 5px; right: 5px; padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="copyToClipboard('result-{{ req[0] }}', this)">Copy</button>
-                            </div>
-                            {% elif req[3] == 'rejected' and req[7] %}
-                            <div style="position: relative;">
-                                <div class="result-box" id="result-{{ req[0] }}" style="color: var(--danger);">{{ req[7] }}</div>
-                            </div>
-                            {% else %}
-                            <em style="color: var(--text-muted); font-size: 0.85rem;">Pending approval</em>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <form action="{{ url_for('delete_my_request', request_id=req[0]) }}" method="POST" style="margin: 0;">
-                                <button type="submit" class="btn" style="background-color: var(--danger); padding: 0.3rem 0.6rem; font-size: 0.75rem;" title="Delete this request">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    {% if not req_list %}
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">You haven't submitted any requests yet.</td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+    <form action="{{ url_for('batch_delete_requests') }}" method="POST">
+        <div style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center;">
+            <button type="submit" class="btn" style="background-color: var(--danger); padding: 0.5rem 1rem;">Delete Selected</button>
+            <span style="color: var(--text-muted); font-size: 0.9rem;" id="selection-count">0 items selected</span>
         </div>
-    </div>
+
+        <div class="card" style="padding: 1rem;">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;"><input type="checkbox" id="select-all"></th>
+                            <th>ID</th>
+                            <th>DB Type</th>
+                            <th>SQL Query</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Result</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in req_list %}
+                        <tr>
+                            <td><input type="checkbox" name="request_ids" value="{{ req[0] }}" class="req-checkbox"></td>
+                            <td style="font-weight: 600;">#{{ req[0] }}</td>
+                            <td><span class="badge" style="background-color: var(--border);">{{ req[8] }}</span></td>
+                            <td><code title="{{ req[2] }}" style="display: inline-block; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ req[2] }}</code></td>
+                            <td>
+                                <span class="badge badge-{{ req[3] }}">{{ req[3] }}</span>
+                            </td>
+                            <td style="font-size: 0.85rem; color: var(--text-muted);">{{ req[4] }}</td>
+                            <td>
+                                {% if req[3] == 'approved' and req[7] %}
+                                <div style="position: relative;">
+                                    <div class="result-box" id="result-{{ req[0] }}">{{ req[7] }}</div>
+                                    <button type="button" class="btn" style="position: absolute; top: 5px; right: 5px; padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="copyToClipboard('result-{{ req[0] }}', this)">Copy</button>
+                                </div>
+                                {% elif req[3] == 'rejected' and req[7] %}
+                                <div style="position: relative;">
+                                    <div class="result-box" id="result-{{ req[0] }}" style="color: var(--danger);">{{ req[7] }}</div>
+                                </div>
+                                {% else %}
+                                <em style="color: var(--text-muted); font-size: 0.85rem;">Pending approval</em>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <!-- Keep the individual delete button as well -->
+                                    <button type="button" class="btn" style="background-color: var(--danger); padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="if(confirm('Delete this request?')) { this.closest('tr').querySelector('.req-checkbox').checked = true; this.form.submit(); }">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if not req_list %}
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-muted);">You haven't submitted any requests yet.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </form>
 </div>
 
 <script>
+    const selectAll = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('.req-checkbox');
+    const selectionCount = document.getElementById('selection-count');
+
+    function updateCount() {
+        const count = document.querySelectorAll('.req-checkbox:checked').length;
+        selectionCount.textContent = `${count} item${count !== 1 ? 's' : ''} selected`;
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener('change', (e) => {
+            checkboxes.forEach(cb => {
+                cb.checked = e.target.checked;
+            });
+            updateCount();
+        });
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateCount);
+    });
     function copyToClipboard(elementId, btn) {
         const text = document.getElementById(elementId).innerText;
         navigator.clipboard.writeText(text).then(() => {

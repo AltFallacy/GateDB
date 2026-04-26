@@ -30,7 +30,7 @@ GateDB operates on a unique "Distributed Tool" architecture with two distinct en
 
 ---
 
-## 💻 Tech Stack
+##  Tech Stack
 *   **Backend:** Python 3.12, Flask, SQLAlchemy, Waitress (Production WSGI Server)
 *   **Database Engines:** MySQL (`mysql-connector-python`), PostgreSQL (`psycopg2-binary`), SQLite (`sqlite3`)
 *   **Frontend:** HTML5, CSS3 (Custom Vanilla Dark Mode Design System), Vanilla JS
@@ -38,7 +38,7 @@ GateDB operates on a unique "Distributed Tool" architecture with two distinct en
 
 ---
 
-## 🚀 Installation & Usage
+##  Installation & Usage
 
 ### Option 1: Standalone Windows Executable (Recommended)
 You do not need Python installed to run GateDB.
@@ -63,7 +63,7 @@ You do not need Python installed to run GateDB.
 
 ---
 
-## ⚙️ Configuration & UI Features
+## Configuration & UI Features
 
 *   **Settings Hub:** Upsert and delete configurations per database engine.
 *   **Sandbox Notes:** A persistent, user-specific text area on the About page to save helpful SQL snippets.

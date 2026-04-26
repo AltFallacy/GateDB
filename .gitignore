@@ -11,9 +11,8 @@ build/
 
 # GateDB Local Databases
 # We ignore these so we don't accidentally push user passwords or queries to public GitHub
-practiceflask/pending_req.db
-practiceflask/user_settings.db
-practiceflask/auth.db
+*.db
+practiceflask/*.db
 
 # Cache
 __pycache__/

@@ -94,7 +94,7 @@ def login():
             user = User(user_data[0], user_data[1], user_data[2], user_data[3])
             login_user(user)
             return redirect(url_for("dashboard"))
-        return "Invalid credentials"
+        return render_template("login.html", error="Invalid Username or Password")
     return render_template("login.html")
 
 @app.route('/signup',methods=['GET','POST'])
@@ -141,15 +141,27 @@ def delete_my_request(request_id):
         pending_req.delete_req(request_id)
     return redirect(url_for('my_requests'))
 
-
-@app.route('/admin/approve/<request_id>')
+@app.route('/my-requests/batch-delete', methods=['POST'])
 @login_required
-def approve_request(request_id):
-    if current_user.role != 'admin':
-        abort(403)
+def batch_delete_requests():
+    request_ids = request.form.getlist("request_ids")
+    if not request_ids:
+        return redirect(url_for('my_requests'))
+        
+    for rid in request_ids:
+        req = pending_req.get_req(rid)
+        if req and str(req[1]) == str(current_user.id):
+            pending_req.delete_req(rid)
+            
+    return redirect(url_for('my_requests'))
+
+
+def _handle_approve(request_id):
     req = pending_req.get_req(request_id)
+    if not req:
+        return
     sql_query = req[2]
-    db_type_full = req[8]
+    db_type_full = req[7]
     
     # Parse engine
     db_engine = "MySQL"
@@ -167,7 +179,7 @@ def approve_request(request_id):
         cursor.execute("UPDATE pending_requests SET result = ? WHERE id = ?", (f"System Error: Admin has not configured Admin Central ({db_engine}) credentials.", request_id))
         conn.commit()
         conn.close()
-        return redirect(url_for("querybox"))
+        return
 
     try:
         # Dynamically instantiate the correct engine based on Admin settings
@@ -193,6 +205,15 @@ def approve_request(request_id):
         conn.commit()
         conn.close()
 
+def _handle_reject(request_id):
+    pending_req.mark_rejected(request_id, current_user.id)
+
+@app.route('/admin/approve/<request_id>')
+@login_required
+def approve_request(request_id):
+    if current_user.role != 'admin':
+        abort(403)
+    _handle_approve(request_id)
     return redirect(url_for("querybox"))
 
 @app.route('/admin/reject/<request_id>')
@@ -200,8 +221,27 @@ def approve_request(request_id):
 def reject_request(request_id):
     if current_user.role != 'admin':
         abort(403)
+    _handle_reject(request_id)
+    return redirect(url_for("querybox"))
+
+@app.route('/admin/batch-action', methods=['POST'])
+@login_required
+def batch_process():
+    if current_user.role != 'admin':
+        abort(403)
     
-    pending_req.mark_rejected(request_id, current_user.id)
+    action = request.form.get("action")
+    request_ids = request.form.getlist("request_ids")
+    
+    if not request_ids:
+        return redirect(url_for("querybox"))
+
+    for rid in request_ids:
+        if action == "approve":
+            _handle_approve(rid)
+        elif action == "reject":
+            _handle_reject(rid)
+            
     return redirect(url_for("querybox"))
     
 @app.route("/submit-request", methods=["POST"])
