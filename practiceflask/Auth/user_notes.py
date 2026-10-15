@@ -1,7 +1,8 @@
 import sqlite3
+from Auth.db_config import get_db_path
 
 class UserNotes:
-    DB_NAME = "user_settings.db"
+    DB_NAME = get_db_path("user_settings.db")
 
     def create_table(self):
         conn = sqlite3.connect(self.DB_NAME)

@@ -1,0 +1,9 @@
+step 1: load the image
+docker load < gatedb_image_universal.tar.gz
+step 2: to run the file execute this command
+docker run -d -p 5000:5000 --name gatedb-container --rm gatedb:3.0
+step 3: to stop the server 
+docker stop gatedb-container
+#remove --rm flag inorder to preserve the database
+to run on same network via linux or another system
+find your networks ip
