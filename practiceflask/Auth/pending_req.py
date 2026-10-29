@@ -1,8 +1,9 @@
 from sqlite3 import connect
+from Auth.db_config import get_db_path
 
 class PendingReq:
 
-    DB_NAME = "pending_req.db"
+    DB_NAME = get_db_path("pending_req.db")
 
     def create_table(self):
         conn = connect(self.DB_NAME)

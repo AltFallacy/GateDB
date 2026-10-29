@@ -1,0 +1,31 @@
+step 1: first create a dockerfile named:Dockerfile.txt
+step 2: inside the txt put:
+# 1. Use the official cross-platform Python image
+FROM python:3.12.3-slim
+
+# 2. Set the internal container directory
+WORKDIR /app
+
+# 3. Copy dependencies first to maximize build speed
+COPY requirements.txt .
+
+# 4. Upgrade pip and install packages cleanly across all OS platforms
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# 5. Copy the project source files into the container
+COPY . .
+
+# 6. Open the network port for the web app
+EXPOSE 5000
+
+# 7. Start the Waitress server natively
+ENTRYPOINT ["python", "practice.py"]
+step 3: build docker image : docker build -t gatedb:1.0 .
+step 4:verify the file exists: docker images
+step 5: save the image:
+# Saves the image into a tar file
+docker save gatedb:1.0 | gzip > gatedb_image.tar.gz
+step 7: run the container:
+docker run -d -p 5000:5000 --name gatedb-container --rm gatedb:1.0
+

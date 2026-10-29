@@ -15,6 +15,8 @@ from connectors.sql_lite_conns import sq3_conns as sqlite_conns
 from datetime import datetime
 import sys
 import os
+from waitress import serve
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 if getattr(sys, 'frozen', False):
     template_folder = os.path.join(sys._MEIPASS, 'templates')
@@ -23,7 +25,10 @@ if getattr(sys, 'frozen', False):
 else:
     app = Flask(__name__)
 
-app.config['SECRET_KEY']='development-key-1234'
+# Handle reverse proxies and AWS Load Balancer headers (X-Forwarded-Proto, X-Forwarded-For)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'development-key-1234')
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
@@ -41,6 +46,11 @@ def load_user(user_id):
     if user_data:
         return User(user_data[0], user_data[1], user_data[2],user_data[3])
     return None
+
+
+@app.route('/health')
+def health():
+    return {"status": "healthy"}, 200
 
 
 @app.route('/')
@@ -321,6 +331,6 @@ def submit_request():
     return "Request submitted for Admin Approval"
 
 if __name__ == "__main__":
-    from waitress import serve
-    print("Starting GateDB Production Server with Waitress on port 5000...")
-    serve(app, host='0.0.0.0', port=5000, threads=6)
+    port = int(os.environ.get("PORT", 5000))
+    print(f"Starting GateDB Production Server with Waitress on port {port}...")
+    serve(app, host='0.0.0.0', port=port, threads=6)

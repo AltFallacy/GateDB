@@ -1,11 +1,13 @@
 from sqlite3 import connect
-from werkzeug.security import check_password_hash
+from Auth.db_config import get_db_path
+
 def checkdb():
-    conn = connect("auth.db")
+    conn = connect(get_db_path("auth.db"))
     cursor = conn.cursor()
     cursor.execute("PRAGMA table_info(users)")
     users = cursor.fetchall()
     conn.close()
     return users
 
-print(checkdb())
+if __name__ == "__main__":
+    print(checkdb())

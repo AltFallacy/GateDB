@@ -1,0 +1,24 @@
+# Ignore archives and large files
+*.tar.gz
+*.zip
+
+# Ignore local test databases (they should be mounted via volume in /app/data)
+*.db
+*.sqlite3
+
+# Ignore Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# Ignore build artifacts and specs
+dist/
+build/
+GateDB.spec
+
+# Ignore git and logs
+.git/
+.gitignore
+*.log

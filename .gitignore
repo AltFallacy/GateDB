@@ -18,3 +18,14 @@ practiceflask/*.db
 __pycache__/
 *.py[cod]
 *$py.class
+/rough/
+/selenium_testing/
+
+/windows/
+/backup/
+/linux_docker1
+
+# Archives & Large Files
+*.tar.gz
+*.zip
+*.tar
